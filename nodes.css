@@ -1,0 +1,47 @@
+.max{
+  border-color: red;
+}
+.min{
+  border-color: blue;
+}
+span.min{
+  color: blue;
+}
+span.max{
+  color: red;
+}
+
+
+ul {
+    position: relative;
+}
+
+ul:after {
+    content: '';
+    position: absolute;
+    left: 25px;
+    top: 10px;
+    bottom: 10px;
+    width: 1px;
+    background: black;
+}
+
+li:after {
+    content: '';
+    position: absolute;
+    left: -14px;
+    width: 42px;
+    height: 1px;
+    background: black;
+    top: 10px;
+}
+ul:last-of-type:before {
+    content: '';
+    position: absolute;
+    left: -15px;
+    width: 1px;
+    top: 11px;
+    bottom: 0;
+    background: white;
+    z-index: 1;
+}
