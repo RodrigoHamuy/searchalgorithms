@@ -9,15 +9,106 @@
 <body>
   <header>
     <span class="min">Mini</span><span class="max">Max</span>
+    &
+    <span class="max">Alpha</span><span class="min">Beta</span>
   </header>
   <ul class="tree">
     <li>
-      <input type="text" size="3" value="3">
+      <input type="text" size="3" value="3" class="max">
       <button type="button" class="add">Add</button>
+      <div class="alpha">
+        Alpha: <span></span>
+      </div>
+      <div class="beta">
+        Beta: <span></span>
+      </div>
 
+
+      <ul><li><input type="text" size="3" value="" class="min">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+
+      <ul><li><input type="text" size="3" value="5" class="max">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+      </li></ul>
+
+      <ul><li><input type="text" size="3" value="6" class="max">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+      </li></ul>
+
+
+
+
+    </li></ul>
+
+      <ul><li><input type="text" size="3" value="" class="min">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+
+      <ul><li><input type="text" size="3" value="7" class="max">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+      </li></ul>
+
+      <ul><li><input type="text" size="3" value="4" class="max">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+      </li></ul>
+
+      <ul><li><input type="text" size="3" value="5" class="max">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+      </li></ul>
+    </li></ul>
     </li>
   </ul>
-  <button type="button" name="button" class="find">Find</button>
+  <button type="button" name="button" class="minimax">MiniMax</button>
+
+  <button type="button" name="button" class="alphabeta">AlphaBeta</button>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script type="text/javascript">
   "use strict";
@@ -33,6 +124,15 @@
 
   $('body').on('click', '.delete', deleteNode);
 
+  $('.minimax').click(function () {
+    initNodes();
+    minimaxSearch(terminal);
+  });
+  $('.alphabeta').click(function () {
+    initNodes();
+    alphabeta(terminal);
+  });
+
   function deleteNode(e) {
     const $NODE = $(e.target).parent('li');
     const $NODES_WRAPER = $NODE.parent('ul')
@@ -46,31 +146,85 @@
   function addChild(e) {
     const $NODE = $(e.target).siblings('input');
     $NODE.val('');
-    $NODE.parent().append(
-      '<ul><li><input type="text" size="3" value="">'
-      + '<button type="button" class="add">Add child</button>'
-      + '<button type="button" class="delete">Delete</button>'
-      +'</li></ul>'
-    );
+    $NODE.parent().append(`
+      <ul><li><input type="text" size="3" value="">
+        <button type="button" class="add">Add child</button>
+        <button type="button" class="delete">Delete</button>
+        <div class="alpha">
+          Alpha: <span></span>
+        </div>
+        <div class="beta">
+          Beta: <span></span>
+        </div>
+      </li></ul>
+    `);
     initNodes();
   }
 
-  $('.find').click(function () {
-    minimaxSearch(terminal);
-  });
 
-  function initNodes (){
+  function initNodes (random){
+    if (typeof random === 'undefined') {
+      random = false;
+    }
     $('input[type=text]').each(function () {
       const $NODE_INPUT = $(this);
+      $NODE_INPUT.removeAttr('disabled');
       if ($NODE_INPUT.siblings('ul').length > 0) {
         $NODE_INPUT.val('');
       }else{
-        $NODE_INPUT.val(Math.floor(Math.random()*10));
+        if (
+          (random) ||
+          ($NODE_INPUT.val() === "")
+        ) {
+          $NODE_INPUT.val(Math.floor(Math.random()*10));
+        }
       }
     });
     terminal = new Node($('.tree>li>input'), MAX);
 
     getChilds(terminal);
+  }
+
+  function alphabeta(parent) {
+    parent.open = false;
+    parent.childs.some(function (child) {
+      if (child.value === "") {
+        alphabeta(child);
+      }
+      if (parent.value === "") {
+        parent.setValue(parent.childs[0].value);
+      }
+      if (
+        (parent.type === MAX) &&
+        (parent.alpha < child.value)
+      ) {
+        parent.setAlpha(child.value);
+      } else if (
+        (parent.type === MIN) &&
+        (parent.beta > child.value)
+      ) {
+        parent.setBeta(child.value);
+      }
+      if (
+        (parent.type === MAX) ===
+        (parent.value < child.value)
+      ) {
+        parent.setValue(child.value);
+      }
+      if (parent.alpha >= parent.beta) {
+        let $nextNode = child.$obj.parent().parent().next().children('li').children('input');
+        var i = 0;
+        while ($nextNode.length > 0) {
+          if (++i>10) {
+            i = 10;
+          }
+          $nextNode.attr('disabled', 'true');
+          $nextNode = $nextNode.parent().parent().next().children('li').children('input');
+        }
+        return true;
+      }
+    });
+    return parent.value;
   }
 
   function minimaxSearch(parent) {
@@ -81,14 +235,11 @@
       if (parent.value === "") {
         parent.setValue(parent.childs[0].value);
       }
-      if (parent.type === MAX) {
-        if (parent.value < child.value) {
-          parent.setValue(child.value);
-        }
-      } else if (parent.type === MIN) {
-        if (parent.value > child.value) {
-          parent.setValue(child.value);
-        }
+      if (
+        (parent.type === MAX) ===
+        (parent.value < child.value)
+      ) {
+        parent.setValue(child.value);
       }
     });
     return parent.value;
@@ -106,18 +257,39 @@
   }
 
   function Node($object, type) {
+    let node = this;
     this.value = $object.val();
-    $object.node = this;
     this.$obj = $object;
     this.childs = [];
     this.parent = null;
     this.type = type;
+    this.alpha = -Infinity;
+    this.beta = Infinity;
+    this.open = true;
 
     $object.addClass(type);
 
     this.setValue = function(val) {
       this.value = val;
       this.$obj.val(val);
+    };
+    this.setAlpha = function (val) {
+      this.alpha = val;
+      this.updateAlphaBetaUI();
+    };
+    this.setBeta = function (val) {
+      this.beta = val;
+      this.updateAlphaBetaUI();
+    };
+    this.updateAlphaBetaUI = function() {
+      this.childs.forEach(function (child) {
+        if (child.open) {
+          child.setAlpha(node.alpha);
+          child.setBeta(node.beta);
+        }
+      });
+      this.$obj.siblings('.alpha').children('span').text(this.alpha);
+      this.$obj.siblings('.beta').children('span').text(this.beta);
     }
   }
   </script>
