@@ -1,129 +1,125 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Node Tree Search Algorigthms</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="nodes.css">
-  </head>
-  <body>
-    <header>
-      <span class="min">Mini</span><span class="max">Max</span>
-    </header>
-    <ul class="tree">
-      <li>
-        <input type="text" size="3" value="3">
-        <button type="button" class="add">Add</button>
+<head>
+  <meta charset="utf-8">
+  <title>Node Tree Search Algorigthms</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="nodes.css">
+</head>
+<body>
+  <header>
+    <span class="min">Mini</span><span class="max">Max</span>
+  </header>
+  <ul class="tree">
+    <li>
+      <input type="text" size="3" value="3">
+      <button type="button" class="add">Add</button>
 
-      </li>
-    </ul>
-    <button type="button" name="button" class="find">Find</button>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript">
-      "use strict";
+    </li>
+  </ul>
+  <button type="button" name="button" class="find">Find</button>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+  "use strict";
 
-      const MAX = 'max';
-      const MIN = 'min';
+  const MAX = 'max';
+  const MIN = 'min';
 
-      let terminal;
+  let terminal;
 
-      initNodes();
+  initNodes();
 
-      $('body').on('click', '.add', addChild);
+  $('body').on('click', '.add', addChild);
 
-      $('body').on('click', '.delete', deleteNode);
+  $('body').on('click', '.delete', deleteNode);
 
-      function deleteNode(e) {
-        const $NODE = $(e.target).parent('li');
-        const $NODES_WRAPER = $NODE.parent('ul')
-        $NODE.remove();
-        if ($NODES_WRAPER.children().length === 0) {
-          $NODES_WRAPER.remove();
+  function deleteNode(e) {
+    const $NODE = $(e.target).parent('li');
+    const $NODES_WRAPER = $NODE.parent('ul')
+    $NODE.remove();
+    if ($NODES_WRAPER.children().length === 0) {
+      $NODES_WRAPER.remove();
+    }
+    initNodes();
+  }
+
+  function addChild(e) {
+    const $NODE = $(e.target).siblings('input');
+    $NODE.val('');
+    $NODE.parent().append(
+      '<ul><li><input type="text" size="3" value="">'
+      + '<button type="button" class="add">Add child</button>'
+      + '<button type="button" class="delete">Delete</button>'
+      +'</li></ul>'
+    );
+    initNodes();
+  }
+
+  $('.find').click(function () {
+    minimaxSearch(terminal);
+  });
+
+  function initNodes (){
+    $('input[type=text]').each(function () {
+      const $NODE_INPUT = $(this);
+      if ($NODE_INPUT.siblings('ul').length > 0) {
+        $NODE_INPUT.val('');
+      }else{
+        $NODE_INPUT.val(Math.floor(Math.random()*10));
+      }
+    });
+    terminal = new Node($('.tree>li>input'), MAX);
+
+    getChilds(terminal);
+  }
+
+  function minimaxSearch(parent) {
+    parent.childs.forEach(function (child) {
+      if (child.value === "") {
+        minimaxSearch(child);
+      }
+      if (parent.value === "") {
+        parent.setValue(parent.childs[0].value);
+      }
+      if (parent.type === MAX) {
+        if (parent.value < child.value) {
+          parent.setValue(child.value);
         }
-        initNodes();
-      }
-
-      function addChild(e) {
-        const $NODE = $(e.target).siblings('input');
-        $NODE.val('');
-        $NODE.parent().append(
-          '<ul><li><input type="text" size="3" value="">'
-          + '<button type="button" class="add">Add child</button>'
-          + '<button type="button" class="delete">Delete</button>'
-          +'</li></ul>'
-        );
-        initNodes();
-      }
-
-      $('.find').click(function () {
-        minimaxSearch(terminal);
-      });
-
-      function initNodes (){
-        $('input[type=text]').each(function () {
-          const $NODE_INPUT = $(this);
-          if ($NODE_INPUT.siblings('ul').length > 0) {
-            $NODE_INPUT.val('');
-          }else{
-            $NODE_INPUT.val(Math.floor(Math.random()*10));
-          }
-        });
-        terminal = new Node($('.tree>li>input'), MAX);
-
-        getChilds(terminal);
-      }
-
-      function minimaxSearch(parent) {
-        if (parent.value === ""){
-          parent.setValue(parent.childs[0].value);
-          parent.childs.forEach(function (child) {
-            if (child.value === "") {
-              minimaxSearch(child);
-            }
-            if (parent.value === "") {
-              parent.setValue(parent.childs[0].value);
-            }
-            if (parent.type === MAX) {
-              if (parent.value < child.value) {
-                parent.setValue(child.value);
-              }
-            } else if (parent.type === MIN) {
-              if (parent.value > child.value) {
-                parent.setValue(child.value);
-              }
-            }
-          });
-        }else{
-          return parent.value;
+      } else if (parent.type === MIN) {
+        if (parent.value > child.value) {
+          parent.setValue(child.value);
         }
       }
+    });
+    return parent.value;
+  }
 
-      function getChilds(parent) {
-        const childType = parent.type === MAX ? MIN : MAX;
-        const $obj = parent.$obj;
-        $obj.siblings('ul').children('li').children('input').each(function () {
-          let node = new Node($(this), childType);
-          node.parent = parent;
-          parent.childs.push(node);
-          getChilds(node);
-        });
-      }
+  function getChilds(parent) {
+    const childType = parent.type === MAX ? MIN : MAX;
+    const $obj = parent.$obj;
+    $obj.siblings('ul').children('li').children('input').each(function () {
+      let node = new Node($(this), childType);
+      node.parent = parent;
+      parent.childs.push(node);
+      getChilds(node);
+    });
+  }
 
-      function Node($object, type) {
-        this.value = $object.val();
-        $object.node = this;
-        this.$obj = $object;
-        this.childs = [];
-        this.parent = null;
-        this.type = type;
+  function Node($object, type) {
+    this.value = $object.val();
+    $object.node = this;
+    this.$obj = $object;
+    this.childs = [];
+    this.parent = null;
+    this.type = type;
 
-        $object.addClass(type);
+    $object.addClass(type);
 
-        this.setValue = function(val) {
-          this.value = val;
-          this.$obj.val(val);
-        }
-      }
-    </script>
-  </body>
+    this.setValue = function(val) {
+      this.value = val;
+      this.$obj.val(val);
+    }
+  }
+  </script>
+</body>
 </html>
